@@ -134,3 +134,7 @@ dist
 # TernJS port file
 
 .tern-port
+
+# Twitch Access Token Example
+.data/*
+!.data/tokens.{userId}.json

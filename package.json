@@ -1,10 +1,10 @@
 {
-  "name": "Type your project name",
+  "name": "twitch-bot-funny",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node -x .js,.ts src",
+    "start": "babel-node -x .js,.ts -r dotenv/config src",
     "build": "npm run build.compile && npm run build.types",
     "build.compile": "babel src --out-dir dist -x .js,.ts --ignore **/*.d.ts,**/*.test.js,**/*.test.ts,**/__tests__ --delete-dir-on-start",
     "build.types": "tsc --project tsconfig.types.json && tsconfig-replace-paths -p tsconfig.types.json -s ./src -o ./dist",
@@ -30,6 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "babel-plugin-root-import": "^6.6.0",
+    "dotenv": "^16.3.1",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
@@ -41,6 +42,11 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.23.5"
+    "@babel/runtime": "^7.23.5",
+    "@pearwb/logger": "^0.3.4",
+    "@twurple/api": "^7.0.7",
+    "@twurple/auth": "^7.0.7",
+    "@twurple/chat": "^7.0.7",
+    "@twurple/pubsub": "^7.0.7"
   }
 }
