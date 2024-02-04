@@ -1,9 +1,8 @@
-import { HelixUser } from "@twurple/api";
 import { ChatClient, ChatMessage, ChatUser } from "@twurple/chat";
 import { authProvider, twurpleClient } from "~/index";
+import BaseModule from "~/modules/base";
 
-export default class RandomBanModule {
-  private target: HelixUser;
+export default class RandomBanModule extends BaseModule {
   private chatClient: ChatClient;
   /**
    * 參加關鍵字
@@ -14,18 +13,8 @@ export default class RandomBanModule {
    */
   private list: ChatUser[] = [];
 
-  constructor(user: string) {
-    if (/^[0-9]/.test(user)) {
-      twurpleClient.users.getUserById(user).then((user) => {
-        this.target = user;
-        this.init();
-      });
-    } else {
-      twurpleClient.users.getUserByName(user).then((user) => {
-        this.target = user;
-        this.init();
-      });
-    }
+  constructor(target: string) {
+    super(target);
   }
   init() {
     this.chatClient = new ChatClient({
@@ -97,7 +86,13 @@ export default class RandomBanModule {
         this.join(msg.userInfo);
       }
     } else if (text === "!ban") {
-      this.ban();
+      const user = msg.userInfo;
+      if (
+        user.isMod ||
+        user.isBroadcaster ||
+        this.list.findIndex((item) => item.userId === user.userId) !== -1
+      )
+        this.ban();
     } else if (text === "!rb list" || text === "!參加人數") {
       this.chatClient.say(
         this.target.name,
