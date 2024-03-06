@@ -63,6 +63,12 @@ export class MainLoader {
   }
   private async refresh() {
     const users = await this.getUsers();
+    for (const userId of Object.keys(this.modules).filter(
+      (userId) =>
+        users.findIndex((user) => user.broadcaster_id === userId) === -1,
+    )) {
+      this.abortModules(userId);
+    }
     for (const user of users) {
       this.initModules(user.broadcaster_id, user.broadcaster_name);
     }
@@ -74,10 +80,27 @@ export class MainLoader {
     logger.info(`加入了 ${userDisplayName}(${userId}) 頻道.`);
     this.modules[userId] = [];
     this.modules[userId].name = userDisplayName;
-    this.modules[userId].push(new RandomBanModule(userId));
+    this.initModule(userId, RandomBanModule);
+  }
+  private initModule<T extends BaseModule>(
+    userId: string,
+    moduleClass: new (target: string) => T,
+  ) {
+    if (!(userId in this.modules)) return;
+    this.modules[userId].push(new moduleClass(userId));
+  }
+  private async abortModule(userId: string, moduleClass: typeof BaseModule) {
+    if (!(userId in this.modules)) return;
+    for (let index = 0; index < this.modules[userId].length; index++) {
+      if (!(this.modules[userId][index] instanceof moduleClass)) return;
+      await this.modules[userId][index].abort();
+      this.modules[userId].splice(index--, 1);
+      index--;
+    }
   }
   private async abortModules(userId: string) {
-    if (userId in this.modules) return;
+    if (!(userId in this.modules)) return;
+    logger.info(`離開了 ${this.modules[userId].name}(${userId}) 頻道.`);
     await Promise.all(this.modules[userId].map((module) => module.abort()));
     delete this.modules[userId];
   }
