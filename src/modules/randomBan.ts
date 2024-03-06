@@ -25,6 +25,7 @@ export default class RandomBanModule extends BaseModule {
     this.chatClient.onDisconnect((manually) => {
       if (manually) return;
       this.chatClient.reconnect();
+      this.chatClient.join(this.target.name);
     });
     this.chatClient.connect();
   }
