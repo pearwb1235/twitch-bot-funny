@@ -1,6 +1,7 @@
 import { twurpleClient } from "~/index";
 import { logger } from "~/logger";
 import BaseModule from "~/modules/base";
+import JokeModule from "~/modules/joke";
 import RandomBanModule from "~/modules/randomBan";
 
 type Broadcaster = {
@@ -81,6 +82,7 @@ export class MainLoader {
     this.modules[userId] = [];
     this.modules[userId].name = userDisplayName;
     this.initModule(userId, RandomBanModule);
+    this.initModule(userId, JokeModule);
   }
   private initModule<T extends BaseModule>(
     userId: string,
