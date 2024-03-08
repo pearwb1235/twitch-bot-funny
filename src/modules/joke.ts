@@ -5,7 +5,7 @@ import BaseModule from "~/modules/base";
 export default class JokeModule extends BaseModule {
   private chatClient: ChatClient;
 
-  private history: number[];
+  private history: number[] = [];
 
   constructor(target: string) {
     super(target);
@@ -80,9 +80,7 @@ export default class JokeModule extends BaseModule {
       ];
       let index;
       while (
-        !this.history.includes(
-          (index = Math.floor(list.length * Math.random())),
-        )
+        this.history.includes((index = Math.floor(list.length * Math.random())))
       );
       this.history.push(index);
       if (this.history.length > 10) this.history.shift();
