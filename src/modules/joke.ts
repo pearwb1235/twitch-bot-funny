@@ -1,31 +1,11 @@
-import { ChatClient, ChatMessage } from "@twurple/chat";
-import { authProvider } from "~/index";
-import BaseModule from "~/modules/base";
+import { ChatMessage } from "@twurple/chat";
+import ChatMoudle from "~/modules/chat";
 
-export default class JokeModule extends BaseModule {
-  private chatClient: ChatClient;
-
+export default class JokeModule extends ChatMoudle {
   private history: number[] = [];
 
   constructor(target: string) {
     super(target);
-  }
-  init() {
-    this.chatClient = new ChatClient({
-      authProvider,
-      channels: [this.target.name],
-    });
-    this.chatClient.onMessage(this.onMessage.bind(this));
-    this.chatClient.onDisconnect((manually) => {
-      if (manually) return;
-      this.chatClient.reconnect();
-      this.chatClient.join(this.target.name);
-    });
-    this.chatClient.connect();
-  }
-  abort() {
-    this.chatClient.quit();
-    this.chatClient = null;
   }
   onMessage(_1: string, _2: string, text: string, msg: ChatMessage) {
     if (text === "!爛笑話") {
