@@ -7,11 +7,17 @@ export default abstract class ChatMoudle extends BaseModule {
   private isJoining: boolean = false;
   private joinChannel() {
     if (this.isJoining) return;
+    if (this.chatClient.currentChannels.includes(this.target.name)) return;
     this.isJoining = true;
-    this.chatClient.join(this.target.name).catch(() => {
-      this.isJoining = false;
-      this.joinChannel();
-    });
+    if (!this.chatClient.isConnected && !this.chatClient.isConnecting)
+      this.chatClient.connect();
+    this.chatClient
+      .join(this.target.name)
+      .catch(() => {})
+      .finally(() => {
+        this.isJoining = false;
+        this.joinChannel();
+      });
   }
   init() {
     this.chatClient = new ChatClient({
@@ -20,10 +26,8 @@ export default abstract class ChatMoudle extends BaseModule {
     this.chatClient.onMessage(this.onMessage.bind(this));
     this.chatClient.onDisconnect((manually) => {
       if (manually) return;
-      this.chatClient.reconnect();
       this.joinChannel();
     });
-    this.chatClient.connect();
     this.joinChannel();
   }
   abort() {
