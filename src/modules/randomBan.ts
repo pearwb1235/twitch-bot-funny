@@ -11,6 +11,10 @@ export default class RandomBanModule extends ChatMoudle {
    * 參加清單
    */
   private list: ChatUser[] = [];
+  /**
+   * 最後通知時間
+   */
+  private lastNotify: number = 0;
 
   constructor(target: string) {
     super(target);
@@ -37,8 +41,9 @@ export default class RandomBanModule extends ChatMoudle {
   }
   join(user: ChatUser) {
     if (this.list.findIndex((item) => item.userId === user.userId) !== -1)
-      return;
+      return false;
     this.list.push(user);
+    return true;
   }
   ban() {
     const selects = this.list.splice(
@@ -50,7 +55,7 @@ export default class RandomBanModule extends ChatMoudle {
     const duration = Math.floor(Math.random() * 50) + 10;
     this.chatClient.say(
       this.target.name,
-      `${user.displayName} 遭到隨機禁言 ${duration} 秒.`,
+      `${user.displayName} 遭到隨機禁言 ${duration} 秒. kuchu1EvilCat`,
     );
     twurpleClient.asUser(process.env.TWITCH_ID, (twurpleClient) =>
       twurpleClient.moderation.banUser(this.target.id, {
@@ -61,30 +66,46 @@ export default class RandomBanModule extends ChatMoudle {
     );
   }
   onMessage(_1: string, _2: string, text: string, msg: ChatMessage) {
+    const user = msg.userInfo;
     if (text !== null && text === this.keyword) {
-      const user = msg.userInfo;
       if (user.isMod || user.isBroadcaster) {
-        this.chatClient.say(this.target.name, `MOD 不能參與`, { replyTo: msg });
+        this.chatClient.say(this.target.name, `MOD 不能參與 kuchu1Bonk3`, {
+          replyTo: msg,
+        });
       } else {
-        this.join(msg.userInfo);
+        if (
+          this.join(msg.userInfo) &&
+          Date.now() - 5 * 60 * 1000 > this.lastNotify
+        ) {
+          this.lastNotify = Date.now();
+          this.chatClient.say(
+            this.target.name,
+            `你參加了隨機禁言抽獎，若要離開請輸入「!離開」(防止洗頻，這則訊息300秒內只會出現一次)`,
+            {
+              replyTo: msg,
+            },
+          );
+        }
       }
     } else if (text === "!ban") {
-      const user = msg.userInfo;
       if (
         user.isMod ||
         user.isBroadcaster ||
         this.list.findIndex((item) => item.userId === user.userId) !== -1
       )
         this.ban();
+    } else if (text === "!rb exit" || text === "!離開") {
     } else if (text === "!rb list" || text === "!參加人數") {
       this.chatClient.say(
         this.target.name,
-        `目前有 ${this.list.length} 人參與`,
+        `目前有 ${this.list.length} 人參與 kuchu1Spin1`,
       );
-    } else if (text === "!rb" || text.startsWith("!rb ")) {
-      this.set(text.substring(4));
-    } else if (text === "!設定關鍵字" || text.startsWith("!設定關鍵字 ")) {
-      this.set(text.substring(7));
+    } else if (user.isMod || user.isBroadcaster) {
+      if (text === "!rb" || text.startsWith("!rb ")) {
+        this.set(text.substring(4));
+      } else if (text === "!設定關鍵字" || text.startsWith("!設定關鍵字 ")) {
+        this.set(text.substring(7));
+      }
     }
   }
 }

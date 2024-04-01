@@ -15,6 +15,7 @@ export default abstract class ChatMoudle extends BaseModule {
       .join(this.target.name)
       .catch(() => {})
       .finally(() => {
+        if (this.chatClient.currentChannels.includes(this.target.name)) return;
         this.isJoining = false;
         this.joinChannel();
       });
