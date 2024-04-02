@@ -95,6 +95,20 @@ export default class RandomBanModule extends ChatMoudle {
       )
         this.ban();
     } else if (text === "!rb exit" || text === "!離開") {
+      if (this.list.findIndex((item) => item.userId === user.userId) !== -1) {
+        this.list = this.list.filter((item) => item.userId !== user.userId);
+        this.chatClient.say(
+          this.target.name,
+          `你已離開隨機禁言 kuchu1LODINGM2`,
+          {
+            replyTo: msg,
+          },
+        );
+      } else {
+        this.chatClient.say(this.target.name, `你又沒有加入 kuchu1Bonk3`, {
+          replyTo: msg,
+        });
+      }
     } else if (text === "!rb list" || text === "!參加人數") {
       this.chatClient.say(
         this.target.name,
