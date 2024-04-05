@@ -29,7 +29,7 @@ export default class JokeModule extends ChatMoudle {
     await this.refreshPersonJokes(sheets, list);
     this.historyMax = Math.floor(list.length * 0.8);
     this.list = list;
-    this.cronId = setTimeout(() => this.refreshJokes(), 60000);
+    this.cronId = setTimeout(() => this.refreshJokes().catch(() => {}), 60000);
   }
   async refreshGlobalJokes(sheets: sheets_v4.Sheets, list: string[]) {
     const res = await sheets.spreadsheets.values.get({
