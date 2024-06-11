@@ -68,7 +68,7 @@ export default class JokeModule extends ChatMoudle {
       this.history.push(index);
       if (this.history.length > Math.min(this.list.length - 1, this.historyMax))
         this.history.shift();
-      this.chatClient.say(this.target.name, this.list[index], { replyTo: msg });
+      this.say(this.target.name, this.list[index], { replyTo: msg });
     }
   }
 }

@@ -30,7 +30,7 @@ export default class LuckModule extends ChatMoudle {
   onMessage(_1: string, _2: string, text: string, msg: ChatMessage) {
     if (text.startsWith("!運勢 ") || text === "!運勢") {
       const touser = text.substring(4).trim();
-      this.chatClient.say(
+      this.say(
         this.target.name,
         `關於${
           touser.length > 0 ? `「${touser}」` : "你自己"

@@ -1,40 +1,38 @@
-import { ChatClient, ChatMessage } from "@twurple/chat";
-import { authProvider } from "~/index";
+import { type RateLimiterRequestOptions } from "@d-fischer/rate-limiter";
+import { ChatMessage, ChatSayMessageAttributes } from "@twurple/chat";
+import ChatClient, { IChatClientListener } from "~/libraries/chatClient";
 import BaseModule from "~/modules/base";
 
-export default abstract class ChatMoudle extends BaseModule {
-  protected chatClient: ChatClient;
-  private isJoining: boolean = false;
-  private joinChannel() {
-    if (this.isJoining) return;
-    if (this.chatClient.currentChannels.includes(this.target.name)) return;
-    this.isJoining = true;
-    if (!this.chatClient.isConnected && !this.chatClient.isConnecting)
-      this.chatClient.connect();
-    this.chatClient
-      .join(this.target.name)
-      .catch(() => {})
-      .finally(() => {
-        if (this.chatClient.currentChannels.includes(this.target.name)) return;
-        this.isJoining = false;
-        this.joinChannel();
-      });
-  }
+export default abstract class ChatMoudle
+  extends BaseModule
+  implements IChatClientListener
+{
   init() {
-    this.chatClient = new ChatClient({
-      authProvider,
-    });
-    this.chatClient.onMessage(this.onMessage.bind(this));
-    this.chatClient.onDisconnect((manually) => {
-      if (manually) return;
-      this.joinChannel();
-    });
-    this.joinChannel();
+    ChatClient.instance.register(this);
   }
+
   abort() {
-    this.chatClient.quit();
-    this.chatClient = null;
+    ChatClient.instance.unregister(this);
   }
+
+  getChannel(): string | string[] {
+    return this.target.name;
+  }
+
+  protected say(
+    channel: string,
+    text: string,
+    attributes?: ChatSayMessageAttributes,
+    rateLimiterOptions?: RateLimiterRequestOptions,
+  ) {
+    return ChatClient.instance.say(
+      channel,
+      text,
+      attributes,
+      rateLimiterOptions,
+    );
+  }
+
   abstract onMessage(
     channel: string,
     user: string,

@@ -1,4 +1,5 @@
 import { twurpleClient } from "~/index";
+import ChatClient from "~/libraries/chatClient";
 import { logger } from "~/logger";
 import BaseModule from "~/modules/base";
 import JokeModule from "~/modules/joke";
@@ -62,6 +63,7 @@ export class MainLoader {
         logger.error(e.toString());
       }
     }
+    ChatClient.destroy();
   }
   private async refresh() {
     const users = await this.getUsers();
