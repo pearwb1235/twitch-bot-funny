@@ -123,8 +123,7 @@ export class LoggerService {
   }
 
   getDebugLevel() {
-    if (!("NODE_ENV" in process.env) || !("DEBUG_LEVEL" in process.env))
-      return Number.MAX_SAFE_INTEGER;
+    if (!("DEBUG_LEVEL" in process.env)) return Number.MAX_SAFE_INTEGER;
     const level = Number.parseInt(process.env.DEBUG_LEVEL);
     if (!Number.isInteger(level)) return -1;
     return level;
@@ -133,7 +132,7 @@ export class LoggerService {
   debug(level: number, ...message: string[]) {
     if (!Number.isInteger(level)) return;
     if (level < 0) return;
-    if (this.getDebugLevel() < level) return;
+    if (this.getDebugLevel() <= level) return;
     this.logger.debug(message.join(" "), {
       debugLevel: level,
     });
