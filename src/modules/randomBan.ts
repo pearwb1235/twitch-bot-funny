@@ -114,7 +114,12 @@ export default class RandomBanModule extends ChatMoudle {
         this.target.name,
         `目前有 ${this.list.length} 人參與 kuchu1Spin1`,
       );
-    } else if (user.isMod || user.isBroadcaster) {
+    } else if (
+      text === "!rb" ||
+      text === "!設定關鍵字" ||
+      user.isMod ||
+      user.isBroadcaster
+    ) {
       if (text === "!rb" || text.startsWith("!rb ")) {
         this.set(text.substring(4));
       } else if (text === "!設定關鍵字" || text.startsWith("!設定關鍵字 ")) {
