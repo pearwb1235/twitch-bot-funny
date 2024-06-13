@@ -35,6 +35,7 @@ export default class ChatClient {
     this._client.onMessage(this.onMessage.bind(this));
     this._client.onConnect(() => {
       logger.debug(1, "ChatClient onConnect");
+      this.refreshChannel();
     });
     this._client.onDisconnect((manually) => {
       logger.debug(
@@ -113,6 +114,8 @@ export default class ChatClient {
         this._isRefreshing = false;
         this.refreshChannel();
       }, 500);
+    } else {
+      this._isRefreshing = false;
     }
   }
 
