@@ -87,14 +87,14 @@ export default class RandomBanModule extends ChatMoudle {
           );
         }
       }
-    } else if (text === "!ban") {
+    } else if (text.toLowerCase() === "!ban") {
       if (
         user.isMod ||
         user.isBroadcaster ||
         this.list.findIndex((item) => item.userId === user.userId) !== -1
       )
         this.ban();
-    } else if (text === "!rb exit" || text === "!離開") {
+    } else if (text.toLowerCase() === "!rb exit" || text === "!離開") {
       if (this.list.findIndex((item) => item.userId === user.userId) !== -1) {
         this.list = this.list.filter((item) => item.userId !== user.userId);
         this.say(this.target.name, `你已離開隨機禁言 kuchu1LODINGM2`, {
@@ -105,18 +105,21 @@ export default class RandomBanModule extends ChatMoudle {
           replyTo: msg,
         });
       }
-    } else if (text === "!rb list" || text === "!參加人數") {
+    } else if (text.toLowerCase() === "!rb list" || text === "!參加人數") {
       this.say(
         this.target.name,
         `目前有 ${this.list.length} 人參與 kuchu1Spin1`,
       );
     } else if (
-      text === "!rb" ||
+      text.toLowerCase() === "!rb" ||
       text === "!設定關鍵字" ||
       user.isMod ||
       user.isBroadcaster
     ) {
-      if (text === "!rb" || text.startsWith("!rb ")) {
+      if (
+        text.toLowerCase() === "!rb" ||
+        text.toLowerCase().startsWith("!rb ")
+      ) {
         this.set(text.substring(4));
       } else if (text === "!設定關鍵字" || text.startsWith("!設定關鍵字 ")) {
         this.set(text.substring(7));
