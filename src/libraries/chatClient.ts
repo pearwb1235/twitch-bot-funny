@@ -45,7 +45,7 @@ export default class ChatClient {
           : "ChatClient onDisconnect",
       );
       if (manually) return;
-      this.reconnect();
+      this._reconnectId = setTimeout(() => this.reconnect(), 5000);
     });
     this._listeners = [];
     this.reconnect();
@@ -56,6 +56,7 @@ export default class ChatClient {
       clearTimeout(this._reconnectId);
       this._reconnectId = null;
     }
+    logger.debug(1, "ChatClient reconnect");
     try {
       if (!this._client.isConnected && !this._client.isConnecting)
         this._client.connect();
@@ -137,6 +138,7 @@ export default class ChatClient {
     logger.debug(3, JSON.stringify(msg));
     for (const listener of this._listeners) {
       try {
+        if (!listener.getChannel().includes(channel)) continue;
         listener.onMessage(channel, user, text, msg);
       } catch (e) {
         console.error(e);
