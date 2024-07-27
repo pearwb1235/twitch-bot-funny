@@ -1,10 +1,10 @@
 import { twurpleClient } from "~/index";
-import ChatClient from "~/libraries/chatClient";
 import { logger } from "~/logger";
 import BaseModule from "~/modules/base";
 import LuckModule from "~/modules/luck";
 import RandomBanModule from "~/modules/randomBan";
 import RandomReplyModule from "~/modules/randomReply";
+import ChatClientService from "~/services/chatClientService";
 
 type Broadcaster = {
   broadcaster_id: string;
@@ -63,7 +63,7 @@ export class MainLoader {
         logger.error(e.toString());
       }
     }
-    ChatClient.destroy();
+    ChatClientService.destroy();
   }
   private async refresh() {
     try {

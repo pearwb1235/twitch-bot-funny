@@ -1,18 +1,20 @@
 import { type RateLimiterRequestOptions } from "@d-fischer/rate-limiter";
 import { ChatMessage, ChatSayMessageAttributes } from "@twurple/chat";
-import ChatClient, { IChatClientListener } from "~/libraries/chatClient";
 import BaseModule from "~/modules/base";
+import ChatClientService, {
+  IChatClientListener,
+} from "~/services/chatClientService";
 
 export default abstract class ChatMoudle
   extends BaseModule
   implements IChatClientListener
 {
   init() {
-    ChatClient.instance.register(this);
+    ChatClientService.instance.register(this);
   }
 
   abort() {
-    ChatClient.instance.unregister(this);
+    ChatClientService.instance.unregister(this);
   }
 
   getChannel(): string | string[] {
@@ -25,7 +27,7 @@ export default abstract class ChatMoudle
     attributes?: ChatSayMessageAttributes,
     rateLimiterOptions?: RateLimiterRequestOptions,
   ) {
-    return ChatClient.instance.say(
+    return ChatClientService.instance.say(
       channel,
       text,
       attributes,

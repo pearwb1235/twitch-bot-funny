@@ -1,24 +1,25 @@
 import { type RateLimiterRequestOptions } from "@d-fischer/rate-limiter";
 import {
+  ChatClient,
   ChatMessage,
   ChatSayMessageAttributes,
-  ChatClient as _ChatClient,
 } from "@twurple/chat";
 import { authProvider } from "~/index";
 import { logger } from "~/logger";
 
-export default class ChatClient {
-  private static _instance: ChatClient;
-  public static get instance(): ChatClient {
-    if (!ChatClient._instance) ChatClient._instance = new ChatClient();
-    return ChatClient._instance;
+export default class ChatClientService {
+  private static _instance: ChatClientService;
+  public static get instance(): ChatClientService {
+    if (!ChatClientService._instance)
+      ChatClientService._instance = new ChatClientService();
+    return ChatClientService._instance;
   }
   public static destroy(): void {
-    if (!ChatClient._instance) return;
-    ChatClient._instance.quit();
+    if (!ChatClientService._instance) return;
+    ChatClientService._instance.quit();
   }
 
-  private _client: _ChatClient;
+  private _client: ChatClient;
   private _listeners: IChatClientListener[];
   private _reconnectId: NodeJS.Timeout;
   private _isRefreshing: boolean;
@@ -29,20 +30,20 @@ export default class ChatClient {
   }
 
   private constructor() {
-    this._client = new _ChatClient({
+    this._client = new ChatClient({
       authProvider,
     });
     this._client.onMessage(this.onMessage.bind(this));
     this._client.onConnect(() => {
-      logger.debug(1, "ChatClient onConnect");
+      logger.debug(1, "ChatClientService onConnect");
       this.refreshChannel();
     });
     this._client.onDisconnect((manually) => {
       logger.debug(
         1,
         manually
-          ? "ChatClient onDisconnect with manually"
-          : "ChatClient onDisconnect",
+          ? "ChatClientService onDisconnect with manually"
+          : "ChatClientService onDisconnect",
       );
       if (manually) return;
       this._reconnectId = setTimeout(() => this.reconnect(), 5000);
@@ -56,7 +57,7 @@ export default class ChatClient {
       clearTimeout(this._reconnectId);
       this._reconnectId = null;
     }
-    logger.debug(1, "ChatClient reconnect");
+    logger.debug(1, "ChatClientService reconnect");
     try {
       if (!this._client.isConnected && !this._client.isConnecting)
         this._client.connect();
@@ -75,7 +76,7 @@ export default class ChatClient {
       return;
     }
     this._isRefreshing = true;
-    logger.debug(1, "ChatClient refreshChannel");
+    logger.debug(1, "ChatClientService refreshChannel");
     const removeChannels = [...this._client.currentChannels];
     const targetChannels = [];
     for (const listener of this._listeners) {
@@ -121,7 +122,7 @@ export default class ChatClient {
   }
 
   private quit() {
-    ChatClient._instance = null;
+    ChatClientService._instance = null;
     this._listeners = [];
   }
 
@@ -131,7 +132,7 @@ export default class ChatClient {
     text: string,
     msg: ChatMessage,
   ) {
-    logger.debug(2, "ChatClient onMessage");
+    logger.debug(2, "ChatClientService onMessage");
     logger.debug(2, channel);
     logger.debug(2, user);
     logger.debug(2, text);
