@@ -66,15 +66,19 @@ export class MainLoader {
     ChatClient.destroy();
   }
   private async refresh() {
-    const users = await this.getUsers();
-    for (const userId of Object.keys(this.modules).filter(
-      (userId) =>
-        users.findIndex((user) => user.broadcaster_id === userId) === -1,
-    )) {
-      this.abortModules(userId);
-    }
-    for (const user of users) {
-      this.initModules(user.broadcaster_id, user.broadcaster_name);
+    try {
+      const users = await this.getUsers();
+      for (const userId of Object.keys(this.modules).filter(
+        (userId) =>
+          users.findIndex((user) => user.broadcaster_id === userId) === -1,
+      )) {
+        this.abortModules(userId);
+      }
+      for (const user of users) {
+        this.initModules(user.broadcaster_id, user.broadcaster_name);
+      }
+    } catch {
+      logger.warn("取得使用者列表失敗");
     }
     if (!this.isAbort)
       this.timeoutId = setTimeout(this.refresh.bind(this), 60 * 1000);
