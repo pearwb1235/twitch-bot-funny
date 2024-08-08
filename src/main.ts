@@ -5,6 +5,7 @@ import LuckModule from "~/modules/luck";
 import RandomBanModule from "~/modules/randomBan";
 import RandomReplyModule from "~/modules/randomReply";
 import ChatClientService from "~/services/chatClientService";
+import SheetCacheService from "~/services/sheetCacheService";
 
 type Broadcaster = {
   broadcaster_id: string;
@@ -64,6 +65,7 @@ export class MainLoader {
       }
     }
     ChatClientService.destroy();
+    SheetCacheService.destroy();
   }
   private async refresh() {
     try {

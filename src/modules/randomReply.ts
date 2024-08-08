@@ -1,7 +1,7 @@
 import { ChatMessage } from "@twurple/chat";
-import { google } from "googleapis";
 import { logger } from "~/logger";
 import ChatMoudle from "~/modules/chat";
+import SheetCacheService from "~/services/sheetCacheService";
 
 export default class RandomReplyModule extends ChatMoudle {
   private history: Record<string, number[]> = {};
@@ -20,10 +20,6 @@ export default class RandomReplyModule extends ChatMoudle {
     if (this.cronId) clearTimeout(this.cronId);
   }
   async refresh() {
-    const sheets = google.sheets({
-      version: "v4",
-      auth: "AIzaSyChVqAUy_sZl3h9fURnJTbQb5_fHN820hA",
-    });
     const regexp = /https:\/\/docs.google.com\/spreadsheets\/d\/([^\/]*)/;
     /**
      * A - 使用者ID
@@ -31,62 +27,55 @@ export default class RandomReplyModule extends ChatMoudle {
      * C - 連結
      * D - 分頁名稱
      */
-    const resList = await sheets.spreadsheets.values.get({
-      spreadsheetId: "1EkCcdxTX58vCEFWLQuU5OVOKeOfpyPpAeoDNfyCvgr8",
-      range: "連結!A1:D",
-    });
-
-    const rows = resList.data.values.filter(
-      (row) => !row[0] || row[0] === this.target.id,
-    );
-    if (rows.length < 1) return;
+    const listRows = (
+      await SheetCacheService.instance.get(
+        "1EkCcdxTX58vCEFWLQuU5OVOKeOfpyPpAeoDNfyCvgr8",
+        "連結",
+      )
+    ).values.filter((row) => !row[0] || row[0] === this.target.id);
+    if (listRows.length < 1) return;
     const list = {};
-    for (const row of rows) {
-      try {
-        if (row[1].length < 1) {
-          // B
-          logger.debug(
-            1,
-            `在使用者 ${this.target.displayName}(${this.target.id}) 中發現表單有空白指令`,
-          );
-          continue;
-        }
-        if (!(row[1] in list)) list[row[1]] = [];
-        const result = regexp.exec(row[2]); // C
-        if (!result) {
-          logger.debug(
-            1,
-            `在使用者 ${this.target.displayName}(${this.target.id}) 中發現表單連結錯誤`,
-          );
-          continue;
-        }
-        if (row[3].length < 1) {
-          // D
-          logger.debug(
-            1,
-            `在使用者 ${this.target.displayName}(${this.target.id}) 中發現表單有空白分頁名稱`,
-          );
-          continue;
-        }
-        const res = await sheets.spreadsheets.values.get({
-          spreadsheetId: result[1],
-          range: `${row[3]}!A1:A`,
-        });
-        const childRows = res.data.values;
-        if (childRows)
-          list[row[1]].push(
-            ...childRows
-              .filter((row) => row[0].length > 0)
-              .map((row) => row[0]),
-          );
-      } catch {
+    const promises = [];
+    for (const row of listRows) {
+      if (row[1].length < 1) {
+        // B
         logger.debug(
           1,
-          `在使用者 ${this.target.displayName}(${this.target.id}) 中讀取表單資料失敗`,
+          `在使用者 ${this.target.displayName}(${this.target.id}) 中發現表單有空白指令`,
         );
-        logger.debug(1, row.join(", "));
+        continue;
       }
+      if (!(row[1] in list)) list[row[1]] = [];
+      const result = regexp.exec(row[2]); // C
+      if (!result) {
+        logger.debug(
+          1,
+          `在使用者 ${this.target.displayName}(${this.target.id}) 中發現表單連結錯誤`,
+        );
+        continue;
+      }
+      if (row[3].length < 1) {
+        // D
+        logger.debug(
+          1,
+          `在使用者 ${this.target.displayName}(${this.target.id}) 中發現表單有空白分頁名稱`,
+        );
+        continue;
+      }
+      promises.push(
+        SheetCacheService.instance
+          .get(result[1], row[3])
+          .then(({ values: childRows }) => {
+            if (childRows)
+              list[row[1]].push(
+                ...childRows
+                  .filter((row) => row[0].length > 0)
+                  .map((row) => row[0]),
+              );
+          }),
+      );
     }
+    await Promise.all(promises);
     for (const command in list) {
       if (
         command in this.list &&
