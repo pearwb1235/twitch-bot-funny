@@ -15,6 +15,10 @@ export default class RandomBanModule extends ChatMoudle {
    * 最後通知時間
    */
   private lastNotify: number = 0;
+  /**
+   * 允許觀眾使用 !ban
+   */
+  private allowViewerBan: boolean = false;
 
   constructor(target: string) {
     super(target);
@@ -94,6 +98,17 @@ export default class RandomBanModule extends ChatMoudle {
         this.list.findIndex((item) => item.userId === user.userId) !== -1
       )
         this.ban();
+    } else if (text.toLowerCase() === "!rb switch") {
+      this.allowViewerBan = !this.allowViewerBan;
+      this.say(
+        this.target.name,
+        this.allowViewerBan
+          ? "已允許觀眾使用 !ban 指令"
+          : "已禁止觀眾使用 !ban 指令",
+        {
+          replyTo: msg,
+        },
+      );
     } else if (text.toLowerCase() === "!rb exit" || text === "!離開") {
       if (this.list.findIndex((item) => item.userId === user.userId) !== -1) {
         this.list = this.list.filter((item) => item.userId !== user.userId);
