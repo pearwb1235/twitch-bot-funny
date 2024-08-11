@@ -91,18 +91,22 @@ export default class ChatClientService {
           if (!currentChannels.includes(channel)) targetChannels.push(channel);
 
           const index = removeChannels.indexOf(channel);
-          if (index === -1) removeChannels.splice(index, 1);
+          if (index !== -1) removeChannels.splice(index, 1);
         }
       } catch (e) {
         console.error(e);
       }
     }
+    logger.debug(
+      2,
+      `ChatClientService refreshChannel wait for part ${removeChannels.length} channels.`,
+    );
     if (removeChannels.length > 0) {
       for (const channel of removeChannels) this._client.part(channel);
     }
     logger.debug(
-      1,
-      `ChatClientService refreshChannel wait for ${targetChannels.length} channels.`,
+      2,
+      `ChatClientService refreshChannel wait for join ${targetChannels.length} channels.`,
     );
     if (targetChannels.length > 0) {
       await Promise.all(
@@ -140,11 +144,11 @@ export default class ChatClientService {
     text: string,
     msg: ChatMessage,
   ) {
-    logger.debug(2, "ChatClientService onMessage");
-    logger.debug(2, channel);
-    logger.debug(2, user);
-    logger.debug(2, text);
-    logger.debug(3, JSON.stringify(msg));
+    logger.debug(5, "ChatClientService onMessage");
+    logger.debug(5, channel);
+    logger.debug(5, user);
+    logger.debug(5, text);
+    logger.debug(6, JSON.stringify(msg));
     for (const listener of this._listeners) {
       try {
         if (!listener.getChannel().includes(channel)) continue;

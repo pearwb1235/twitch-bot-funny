@@ -13,7 +13,22 @@ export default class RandomReplyModule extends ChatMoudle {
   }
   init() {
     super.init();
-    this.refresh();
+    logger.debug(
+      1,
+      `隨機回覆加載中 ─ ${this.target.displayName}(${this.target.id})`,
+    );
+    this.refresh().then(() => {
+      logger.debug(
+        1,
+        `隨機回覆加載完成 ─ ${this.target.displayName}(${this.target.id})`,
+      );
+      for (const key in this.list) {
+        logger.debug(
+          2,
+          `隨機回覆加載完成 ─ ${this.target.displayName}(${this.target.id}) : ${key}`,
+        );
+      }
+    });
   }
   abort() {
     super.abort();

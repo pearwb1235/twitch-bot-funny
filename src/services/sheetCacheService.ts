@@ -15,6 +15,7 @@ export default class SheetCacheService {
 
   private sheets: sheets_v4.Sheets;
   private _taskId: NodeJS.Timeout;
+  private isTaskRunning: boolean = false;
   private queue: {
     spreadsheetId: string;
     sheetName: string;
@@ -35,10 +36,9 @@ export default class SheetCacheService {
     this._taskId = setTimeout(this.refresh.bind(this), 100);
   }
   private async refresh() {
-    if (this._taskId) {
-      clearTimeout(this._taskId);
-      this._taskId = null;
-    }
+    if (this.isTaskRunning) return;
+    this.isTaskRunning = true;
+    logger.debug(2, `開始加載試算表資料`);
     try {
       while (this.queue.length > 0) {
         const nextItem = this.queue[0];
@@ -56,7 +56,10 @@ export default class SheetCacheService {
         }
         this.queue.shift();
       }
-    } catch {
+      logger.debug(2, `結束加載試算表資料`);
+    } catch (e) {
+      logger.debug(3, `加載試算表資料失敗`);
+      logger.debug(3, e.toString());
       this.queue[0].failedCount++;
       if (this.queue[0].failedCount >= 3) {
         const failItem = this.queue.shift();
@@ -65,8 +68,13 @@ export default class SheetCacheService {
         );
       }
     } finally {
+      if (this._taskId) {
+        clearTimeout(this._taskId);
+        this._taskId = null;
+      }
       if (this.queue.length > 0)
         this._taskId = setTimeout(this.refresh.bind(this), 60000);
+      this.isTaskRunning = false;
     }
   }
   public async get(
