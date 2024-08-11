@@ -76,19 +76,22 @@ export default class ChatClientService {
       return;
     }
     this._isRefreshing = true;
-    logger.debug(1, "ChatClientService refreshChannel");
-    const removeChannels = [...this._client.currentChannels];
+    logger.debug(1, "ChatClientService refreshChannel.");
+    const currentChannels = [...this._client.currentChannels];
+    const removeChannels = [...currentChannels];
     const targetChannels = [];
     for (const listener of this._listeners) {
       try {
         const _channels = listener.getChannel();
         const channels = Array.isArray(_channels) ? _channels : [_channels];
-        for (const channel of channels) {
+        for (const _channel of channels) {
+          const channel = `#${_channel}`;
           if (targetChannels.includes(channel)) continue;
-          targetChannels.push(`#${channel}`);
+
+          if (!currentChannels.includes(channel)) targetChannels.push(channel);
+
           const index = removeChannels.indexOf(channel);
-          if (index === -1) continue;
-          removeChannels.splice(index, 1);
+          if (index === -1) removeChannels.splice(index, 1);
         }
       } catch (e) {
         console.error(e);
@@ -97,6 +100,10 @@ export default class ChatClientService {
     if (removeChannels.length > 0) {
       for (const channel of removeChannels) this._client.part(channel);
     }
+    logger.debug(
+      1,
+      `ChatClientService refreshChannel wait for ${targetChannels.length} channels.`,
+    );
     if (targetChannels.length > 0) {
       await Promise.all(
         targetChannels.map((channel) =>
@@ -110,6 +117,7 @@ export default class ChatClientService {
         ),
       );
     }
+    logger.debug(1, "ChatClientService refreshChannel done.");
     if (this._dirty) {
       setTimeout(() => {
         this._dirty = false;
