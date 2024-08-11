@@ -75,7 +75,7 @@ export default class RandomReplyModule extends ChatMoudle {
           }),
       );
     }
-    await Promise.all(promises);
+    await Promise.all(promises).catch((e) => console.error(e));
     for (const command in list) {
       if (
         command in this.list &&
