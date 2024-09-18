@@ -32,6 +32,7 @@ export default class ChatClientService {
   private constructor() {
     this._client = new ChatClient({
       authProvider,
+      rejoinChannelsOnReconnect: true,
     });
     this._client.onMessage(this.onMessage.bind(this));
     this._client.onConnect(() => {
@@ -78,6 +79,11 @@ export default class ChatClientService {
     this._isRefreshing = true;
     logger.debug(1, "ChatClientService refreshChannel.");
     const currentChannels = [...this._client.currentChannels];
+    logger.debug(
+      2,
+      `ChatClientService current have ${currentChannels.length} channels.`,
+    );
+    logger.debug(3, currentChannels.join(","));
     const removeChannels = [...currentChannels];
     const targetChannels = [];
     for (const listener of this._listeners) {
@@ -101,6 +107,7 @@ export default class ChatClientService {
       2,
       `ChatClientService refreshChannel wait for part ${removeChannels.length} channels.`,
     );
+    logger.debug(3, removeChannels.join(","));
     if (removeChannels.length > 0) {
       for (const channel of removeChannels) this._client.part(channel);
     }
@@ -108,6 +115,7 @@ export default class ChatClientService {
       2,
       `ChatClientService refreshChannel wait for join ${targetChannels.length} channels.`,
     );
+    logger.debug(3, targetChannels.join(","));
     if (targetChannels.length > 0) {
       await Promise.all(
         targetChannels.map((channel) =>
