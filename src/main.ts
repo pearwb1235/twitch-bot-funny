@@ -1,3 +1,4 @@
+import { HelixUser } from "@twurple/api";
 import { twurpleClient } from "~/index";
 import { logger } from "~/logger";
 import BaseModule from "~/modules/base";
@@ -16,25 +17,23 @@ type Broadcaster = {
 
 export class MainLoader {
   private modules: Record<string, BaseModule[] & { name?: string }> = {};
-  private timeoutId: NodeJS.Timeout;
+  private timeoutId: NodeJS.Timeout | undefined;
   private isStart = false;
   private isAbort = false;
   private getUsers(): Promise<Broadcaster[]> {
-    return twurpleClient.asUser(process.env.TWITCH_ID, (twurpleClient) =>
+    return twurpleClient.asUser(process.env.TWITCH_ID!, (twurpleClient) =>
       twurpleClient
-        .callApi({
+        .callApi<{
+          data: {
+            broadcaster_id: string;
+            broadcaster_login: string;
+            broadcaster_name: string;
+          }[];
+        }>({
           url: `/moderation/channels?user_id=${process.env.TWITCH_ID}`,
           type: "helix",
         })
-        .then(
-          (res: {
-            data: {
-              broadcaster_id: string;
-              broadcaster_login: string;
-              broadcaster_name: string;
-            }[];
-          }) => res.data,
-        ),
+        .then((res) => res.data),
     );
   }
   async start() {
@@ -62,7 +61,7 @@ export class MainLoader {
         logger.info(`移除了 ${name}(${userId}) 頻道.`);
       } catch (e) {
         logger.error(`無法中止 ${name}(${userId}) 的模組`);
-        logger.error(e.toString());
+        logger.error(String(e));
       }
     }
     ChatClientService.destroy();
@@ -88,20 +87,23 @@ export class MainLoader {
   }
   private initModules(userId: string, userDisplayName = "UNKNOWN") {
     if (userId in this.modules) return;
-    logger.info(`加入了 ${userDisplayName}(${userId}) 頻道.`);
-    this.modules[userId] = [];
-    this.modules[userId].name = userDisplayName;
-    this.initModule(userId, RandomBanModule);
-    this.initModule(userId, RandomReplyModule);
-    this.initModule(userId, LuckModule);
-    this.initModule(userId, DeleteSelfModule);
+    twurpleClient.users.getUserById(userId).then((user) => {
+      if (!user) return;
+      logger.info(`加入了 ${userDisplayName}(${user.id}) 頻道.`);
+      this.modules[user.id] = [];
+      this.modules[user.id].name = userDisplayName;
+      this.initModule(user, RandomBanModule);
+      this.initModule(user, RandomReplyModule);
+      this.initModule(user, LuckModule);
+      this.initModule(user, DeleteSelfModule);
+    });
   }
   private initModule<T extends BaseModule>(
-    userId: string,
-    moduleClass: new (target: string) => T,
+    user: HelixUser,
+    moduleClass: new (target: HelixUser) => T,
   ) {
-    if (!(userId in this.modules)) return;
-    this.modules[userId].push(new moduleClass(userId));
+    if (!(user.id in this.modules)) return;
+    this.modules[user.id].push(new moduleClass(user));
   }
   private async abortModule(userId: string, moduleClass: typeof BaseModule) {
     if (!(userId in this.modules)) return;

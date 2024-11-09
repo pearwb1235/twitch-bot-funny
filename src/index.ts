@@ -4,6 +4,13 @@ import * as fs from "fs";
 import * as path from "path";
 import { MainLoader } from "~/main";
 
+if (!process.env.TWITCH_ID)
+  throw new Error("The env `TWITCH_ID` must to be set.");
+if (!process.env.TWITCH_CLIENTID)
+  throw new Error("The env `TTWITCH_CLIENTIDWITCH_ID` must to be set.");
+if (!process.env.TWITCH_SECRET)
+  throw new Error("The env `TTWITCH_CLIENTIDWITCH_ID` must to be set.");
+
 const tokenData = JSON.parse(
   fs.readFileSync(
     path.join(process.cwd(), ".data", `tokens.${process.env.TWITCH_ID}.json`),

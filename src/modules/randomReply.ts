@@ -6,11 +6,8 @@ import SheetCacheService from "~/services/sheetCacheService";
 export default class RandomReplyModule extends ChatMoudle {
   private history: Record<string, number[]> = {};
   private list: Record<string, string[]> = {};
-  private cronId: NodeJS.Timeout;
+  private cronId: NodeJS.Timeout | null = null;
 
-  constructor(target: string) {
-    super(target);
-  }
   init() {
     super.init();
     logger.debug(
@@ -35,7 +32,7 @@ export default class RandomReplyModule extends ChatMoudle {
     if (this.cronId) clearTimeout(this.cronId);
   }
   async refresh() {
-    const regexp = /https:\/\/docs.google.com\/spreadsheets\/d\/([^\/]*)/;
+    const regexp = /https:\/\/docs.google.com\/spreadsheets\/d\/([^/]*)/;
     /**
      * A - 使用者ID
      * B - 指令
@@ -47,9 +44,9 @@ export default class RandomReplyModule extends ChatMoudle {
         "1EkCcdxTX58vCEFWLQuU5OVOKeOfpyPpAeoDNfyCvgr8",
         "連結",
       )
-    ).values.filter((row) => !row[0] || row[0] === this.target.id);
-    if (listRows.length < 1) return;
-    const list = {};
+    ).values?.filter((row) => !row[0] || row[0] === this.target.id);
+    if (!listRows || listRows.length < 1) return;
+    const list: Record<string, string[]> = {};
     const promises = [];
     for (const row of listRows) {
       if (row[1].length < 1) {

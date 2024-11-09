@@ -8,7 +8,7 @@ import { authProvider } from "~/index";
 import { logger } from "~/logger";
 
 export default class ChatClientService {
-  private static _instance: ChatClientService;
+  private static _instance: ChatClientService | null = null;
   public static get instance(): ChatClientService {
     if (!ChatClientService._instance)
       ChatClientService._instance = new ChatClientService();
@@ -21,9 +21,9 @@ export default class ChatClientService {
 
   private _client: ChatClient;
   private _listeners: IChatClientListener[];
-  private _reconnectId: NodeJS.Timeout;
-  private _isRefreshing: boolean;
-  private _dirty: boolean;
+  private _reconnectId: NodeJS.Timeout | null = null;
+  private _isRefreshing: boolean = false;
+  private _dirty: boolean = false;
 
   public get currentChannels() {
     return this._client.currentChannels;
@@ -64,7 +64,7 @@ export default class ChatClientService {
         this._client.connect();
     } catch (e) {
       logger.error("連線失敗");
-      logger.error(e.toString());
+      logger.error(String(e));
     }
     if (!this._client.isConnected)
       this._reconnectId = setTimeout(() => this.reconnect(), 5000);
@@ -78,14 +78,14 @@ export default class ChatClientService {
     }
     this._isRefreshing = true;
     logger.debug(1, "ChatClientService refreshChannel.");
-    const currentChannels = [...this._client.currentChannels];
+    const currentChannels: string[] = [...this._client.currentChannels];
     logger.debug(
       2,
       `ChatClientService current have ${currentChannels.length} channels.`,
     );
     logger.debug(3, currentChannels.join(","));
-    const removeChannels = [...currentChannels];
-    const targetChannels = [];
+    const removeChannels: string[] = [...currentChannels];
+    const targetChannels: string[] = [];
     for (const listener of this._listeners) {
       try {
         const _channels = listener.getChannel();

@@ -2,11 +2,8 @@ import { ChatMessage } from "@twurple/chat";
 import ChatMoudle from "~/modules/chat";
 
 export default class LuckModule extends ChatMoudle {
-  constructor(target: string) {
-    super(target);
-  }
   choose() {
-    const weight = {
+    const weight: Record<string, number> = {
       超吉: 1,
       超級上吉: 1,
       大吉: 1,

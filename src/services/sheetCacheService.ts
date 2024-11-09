@@ -2,7 +2,7 @@ import { google, sheets_v4 } from "googleapis";
 import { logger } from "~/logger";
 
 export default class SheetCacheService {
-  private static _instance: SheetCacheService;
+  private static _instance: SheetCacheService | null = null;
   public static get instance(): SheetCacheService {
     if (!SheetCacheService._instance)
       SheetCacheService._instance = new SheetCacheService();
@@ -14,7 +14,7 @@ export default class SheetCacheService {
   }
 
   private sheets: sheets_v4.Sheets;
-  private _taskId: NodeJS.Timeout;
+  private _taskId: NodeJS.Timeout | null = null;
   private isTaskRunning: boolean = false;
   private queue: {
     spreadsheetId: string;
@@ -59,10 +59,10 @@ export default class SheetCacheService {
       logger.debug(4, `結束加載試算表資料`);
     } catch (e) {
       logger.debug(4, `加載試算表資料失敗`);
-      logger.debug(3, e.toString());
+      logger.debug(3, String(e));
       this.queue[0].failedCount++;
       if (this.queue[0].failedCount >= 3) {
-        const failItem = this.queue.shift();
+        const failItem = this.queue.shift()!;
         logger.error(
           `讀取表單資料失敗 https://docs.google.com/spreadsheets/d/${failItem.spreadsheetId} (${failItem.sheetName})`,
         );
@@ -101,6 +101,6 @@ export default class SheetCacheService {
   }
   private quit() {
     SheetCacheService._instance = null;
-    clearTimeout(this._taskId);
+    if (this._taskId) clearTimeout(this._taskId);
   }
 }

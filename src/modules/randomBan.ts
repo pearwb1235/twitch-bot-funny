@@ -6,7 +6,7 @@ export default class RandomBanModule extends ChatMoudle {
   /**
    * 參加關鍵字
    */
-  private keyword: string = null;
+  private keyword: string | null = null;
   /**
    * 參加清單
    */
@@ -20,9 +20,6 @@ export default class RandomBanModule extends ChatMoudle {
    */
   private allowViewerBan: boolean = false;
 
-  constructor(target: string) {
-    super(target);
-  }
   set(keyword: string) {
     keyword = keyword.trim();
     if (keyword.length < 1) {
@@ -61,7 +58,7 @@ export default class RandomBanModule extends ChatMoudle {
       this.target.name,
       `${user.displayName} 遭到隨機禁言 ${duration} 秒. kuchu1EvilCat`,
     );
-    twurpleClient.asUser(process.env.TWITCH_ID, (twurpleClient) =>
+    twurpleClient.asUser(process.env.TWITCH_ID!, (twurpleClient) =>
       twurpleClient.moderation.banUser(this.target.id, {
         duration: duration,
         reason: "隨機禁言",

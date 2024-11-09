@@ -5,14 +5,11 @@ import ChatMoudle from "~/modules/chat";
 export default class DeleteSelfModule extends ChatMoudle {
   private record: Record<string, string> = {};
 
-  constructor(target: string) {
-    super(target);
-  }
   delete(user: ChatUser) {
     if (!(user.userId in this.record)) return;
     const messageId = this.record[user.userId];
     delete this.record[user.userId];
-    twurpleClient.asUser(process.env.TWITCH_ID, (twurpleClient) =>
+    twurpleClient.asUser(process.env.TWITCH_ID!, (twurpleClient) =>
       twurpleClient.moderation.deleteChatMessages(this.target.id, messageId),
     );
   }

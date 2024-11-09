@@ -40,5 +40,5 @@ export default abstract class ChatMoudle
     user: string,
     text: string,
     msg: ChatMessage,
-  );
+  ): void | Promise<void>;
 }
