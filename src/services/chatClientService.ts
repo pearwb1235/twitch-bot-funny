@@ -5,7 +5,9 @@ import {
   ChatSayMessageAttributes,
 } from "@twurple/chat";
 import { authProvider } from "~/index";
-import { logger } from "~/logger";
+import { LoggerService } from "~/logger";
+
+const logger = new LoggerService("ChatClient", { showConsole: false });
 
 export default class ChatClientService {
   private static _instance: ChatClientService | null = null;
@@ -38,6 +40,10 @@ export default class ChatClientService {
     this._client.onConnect(() => {
       logger.debug(1, "ChatClientService onConnect");
       this.refreshChannel();
+    });
+    this._client.onTokenFetchFailure((e) => {
+      logger.error("ChatClientService token fetch failure");
+      logger.error(e.message);
     });
     this._client.onDisconnect((manually) => {
       logger.debug(
