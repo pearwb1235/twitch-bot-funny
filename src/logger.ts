@@ -54,7 +54,7 @@ const escapeCode = {
   "background-brightCyan": "\x1b[106m",
   "background-brightWhite": "\x1b[107m",
 };
-const escapeCodeEmpty: Partial<typeof escapeCode> = {};
+const escapeCodeEmpty: Record<string, ""> = {};
 for (const key in escapeCode) {
   escapeCodeEmpty[key] = "";
 }
@@ -67,10 +67,34 @@ type LoggerMeta = {
   debugLevel?: number;
 } & LoggerInfo;
 
+type LoggerConstructorOption = {
+  loggerName?: string;
+  showConsole?: boolean;
+};
+
 class Logger extends BaseLogger<LoggerOption, LoggerMeta> {
-  constructor(loggerName?: string) {
-    super([
-      new winston.transports.Console(),
+  constructor();
+  constructor(options: LoggerConstructorOption);
+  constructor(loggerName: string);
+  constructor(loggerName: string, options: LoggerConstructorOption);
+  constructor(
+    ...args:
+      | []
+      | [LoggerConstructorOption]
+      | [string]
+      | [string, LoggerConstructorOption]
+  ) {
+    // args
+    const options = args.find(
+      (arg) => typeof arg === "object",
+    ) as LoggerConstructorOption;
+    const loggerName =
+      (args.find((arg) => typeof arg === "string") as string) ||
+      (options && options.loggerName);
+    const loggerTransport = [];
+    if (options?.showConsole)
+      loggerTransport.push(new winston.transports.Console());
+    loggerTransport.push(
       new winston.transports.File({
         filename: path.join(
           process.cwd(),
@@ -81,7 +105,9 @@ class Logger extends BaseLogger<LoggerOption, LoggerMeta> {
           this.formatOutput(info, { color: false }),
         ),
       }),
-    ]);
+    );
+    // logic
+    super(loggerTransport);
     this.formatHandlers.splice(1, 0, ["[", this.levelFormat, "]", " "]);
     if (loggerName) {
       this.formatHandlers.splice(1, 0, [`[${loggerName}]`, " "]);
@@ -111,20 +137,34 @@ class Logger extends BaseLogger<LoggerOption, LoggerMeta> {
     return super.formatOutput(info, { color: option ? option.color : true });
   }
 
-  colorFormat(message: string, info: LoggerMeta, option: LoggerOption) {
-    return formatString(message, option.color ? escapeCode : escapeCodeEmpty);
+  colorFormat(message: string, info: LoggerMeta, option?: LoggerOption) {
+    return formatString(message, option?.color ? escapeCode : escapeCodeEmpty);
   }
 }
 
 export class LoggerService {
   private logger: Logger;
-  constructor(loggerName?: string) {
-    this.logger = new Logger(loggerName);
+  constructor();
+  constructor(options: LoggerConstructorOption);
+  constructor(loggerName: string);
+  constructor(loggerName: string, options: LoggerConstructorOption);
+  constructor(
+    ...args:
+      | []
+      | [LoggerConstructorOption]
+      | [string]
+      | [string, LoggerConstructorOption]
+  ) {
+    if (args.length === 0) this.logger = new Logger();
+    else if (args.length === 1)
+      this.logger =
+        typeof args[0] === "string" ? new Logger(args[0]) : new Logger(args[0]);
+    else this.logger = new Logger(args[0], args[1]);
   }
 
   getDebugLevel() {
     if (!("DEBUG_LEVEL" in process.env)) return Number.MAX_SAFE_INTEGER;
-    const level = Number.parseInt(process.env.DEBUG_LEVEL);
+    const level = Number.parseInt(process.env.DEBUG_LEVEL!);
     if (!Number.isInteger(level)) return -1;
     return level;
   }
@@ -155,4 +195,4 @@ export class LoggerService {
   }
 }
 
-export const logger = new LoggerService();
+export const logger = new LoggerService({ showConsole: true });
