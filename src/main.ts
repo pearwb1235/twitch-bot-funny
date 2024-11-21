@@ -1,6 +1,7 @@
 import { HelixUser } from "@twurple/api";
 import { twurpleClient } from "~/index";
 import { logger } from "~/logger";
+import AutoBanModule from "~/modules/autoban";
 import BaseModule from "~/modules/base";
 import DeleteSelfModule from "~/modules/deleteSelf";
 import LuckModule from "~/modules/luck";
@@ -96,6 +97,7 @@ export class MainLoader {
       this.initModule(user, RandomReplyModule);
       this.initModule(user, LuckModule);
       this.initModule(user, DeleteSelfModule);
+      this.initModule(user, AutoBanModule);
     });
   }
   private initModule<T extends BaseModule>(

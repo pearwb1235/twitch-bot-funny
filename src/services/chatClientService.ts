@@ -203,5 +203,5 @@ export interface IChatClientListener {
     user: string,
     text: string,
     msg: ChatMessage,
-  ): void;
+  ): void | Promise<void>;
 }
