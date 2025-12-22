@@ -4,18 +4,7 @@ import { logger } from "~/logger";
 import ChatMoudle from "~/modules/chat";
 
 export default class AutoBanModule extends ChatMoudle {
-  // 暫無永久儲存系統，先預設關閉
-  private enable = false;
-
-  getTimeString(time: Date, currentTime = Date.now()): string {
-    const diff = currentTime - time.getTime();
-    if (diff < 60 * 60 * 1000) return "不到一小時";
-    if (diff < 24 * 60 * 60 * 1000) return "不到一天";
-    const day = Math.floor(diff / 86400000);
-    if (day < 365) return `${day} 天`;
-    const year = Math.floor(day / 365);
-    return `${year} 年 ${day % 365} 天`;
-  }
+  private enable = true;
 
   async getFollowTime(userId: string) {
     const result = await twurpleClient.asUser(
@@ -32,23 +21,13 @@ export default class AutoBanModule extends ChatMoudle {
   hasKeyword(message: string): string | false {
     if (/cutt ?\. ?ly/.test(message)) return "cutt.ly";
     if (/streamboo ?\. ?com/.test(message)) return "streamboo.com";
+    if (/streamboo ?\. ?org/.test(message)) return "streamboo.org";
+    if (/smmace ?\. ?online/.test(message)) return "smmace.online";
     return false;
   }
 
   async onMessage(_1: string, _2: string, text: string, msg: ChatMessage) {
     const currentTime = Date.now();
-    if (text === "!ab-test") {
-      const followTime = await this.getFollowTime(msg.userInfo.userId);
-      return this.say(
-        this.target.name,
-        followTime
-          ? `您已追隨 ${this.getTimeString(followTime, currentTime)}`
-          : "笑死根本沒追隨",
-        {
-          replyTo: msg.id,
-        },
-      );
-    }
     if (msg.userInfo.isBroadcaster || msg.userInfo.isMod) {
       switch (text) {
         case "!ab-on":
