@@ -7,6 +7,7 @@ import DeleteSelfModule from "~/modules/deleteSelf";
 import LuckModule from "~/modules/luck";
 import RandomBanModule from "~/modules/randomBan";
 import RandomReplyModule from "~/modules/randomReply";
+import UtilModule from "~/modules/util";
 import ChatClientService from "~/services/chatClientService";
 import SheetCacheService from "~/services/sheetCacheService";
 
@@ -97,6 +98,7 @@ export class MainLoader {
       this.initModule(user, RandomReplyModule);
       this.initModule(user, LuckModule);
       this.initModule(user, DeleteSelfModule);
+      this.initModule(user, UtilModule);
       this.initModule(user, AutoBanModule);
     });
   }
