@@ -56,7 +56,7 @@ export default class RandomBanModule extends ChatMoudle {
     const duration = Math.floor(Math.random() * 50) + 10;
     this.say(
       this.target.name,
-      `${user.displayName} 遭到隨機禁言 ${duration} 秒. kuchu1EvilCat`,
+      `${user.displayName} 遭到隨機禁言 ${duration} 秒.`,
     );
     twurpleClient.asUser(process.env.TWITCH_ID!, (twurpleClient) =>
       twurpleClient.moderation.banUser(this.target.id, {
@@ -70,7 +70,7 @@ export default class RandomBanModule extends ChatMoudle {
     const user = msg.userInfo;
     if (text !== null && text === this.keyword) {
       if (user.isMod || user.isBroadcaster) {
-        this.say(this.target.name, `MOD 不能參與 kuchu1Bonk3`, {
+        this.say(this.target.name, `MOD 不能參與`, {
           replyTo: msg,
         });
       } else {
@@ -109,19 +109,16 @@ export default class RandomBanModule extends ChatMoudle {
     } else if (text.toLowerCase() === "!rb exit" || text === "!離開") {
       if (this.list.findIndex((item) => item.userId === user.userId) !== -1) {
         this.list = this.list.filter((item) => item.userId !== user.userId);
-        this.say(this.target.name, `你已離開隨機禁言 kuchu1LODINGM2`, {
+        this.say(this.target.name, `你已離開隨機禁言`, {
           replyTo: msg,
         });
       } else {
-        this.say(this.target.name, `你又沒有加入 kuchu1Bonk3`, {
+        this.say(this.target.name, `你又沒有加入`, {
           replyTo: msg,
         });
       }
     } else if (text.toLowerCase() === "!rb list" || text === "!參加人數") {
-      this.say(
-        this.target.name,
-        `目前有 ${this.list.length} 人參與 kuchu1Spin1`,
-      );
+      this.say(this.target.name, `目前有 ${this.list.length} 人參與`);
     } else if (
       text.toLowerCase() === "!rb" ||
       text === "!設定關鍵字" ||
