@@ -158,11 +158,11 @@ export default class ChatClientService {
     text: string,
     msg: ChatMessage,
   ) {
-    logger.debug(5, "ChatClientService onMessage");
-    logger.debug(5, channel);
-    logger.debug(5, user);
-    logger.debug(5, text);
-    logger.debug(6, JSON.stringify(msg));
+    logger.debug(500, "ChatClientService onMessage");
+    logger.debug(500, channel);
+    logger.debug(500, user);
+    logger.debug(500, text);
+    logger.debug(501, JSON.stringify(msg));
     for (const listener of this._listeners) {
       try {
         if (!listener.getChannel().includes(channel)) continue;
