@@ -2,6 +2,7 @@ import { ApiClient } from "@twurple/api";
 import { RefreshingAuthProvider } from "@twurple/auth";
 import * as fs from "fs";
 import * as path from "path";
+import * as util from "util";
 import { logger } from "~/logger";
 import { MainLoader } from "~/main";
 
@@ -11,6 +12,16 @@ if (!process.env.TWITCH_CLIENTID)
   throw new Error("The env `TTWITCH_CLIENTIDWITCH_ID` must to be set.");
 if (!process.env.TWITCH_SECRET)
   throw new Error("The env `TTWITCH_CLIENTIDWITCH_ID` must to be set.");
+
+process.on("unhandledRejection", (reason) => {
+  logger.error(
+    "Unhandled Rejection at:",
+    util.inspect(reason, {
+      depth: null,
+      colors: false,
+    }),
+  );
+});
 
 const tokenData = JSON.parse(
   fs.readFileSync(
