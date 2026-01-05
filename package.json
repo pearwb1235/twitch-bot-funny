@@ -1,0 +1,37 @@
+{
+  "name": "Type your project name",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src",
+  "scripts": {
+    "start": "ts-node src",
+    "test": "lint-staged && jest --passWithNoTests",
+    "prepare": "husky",
+    "build": "npm run build:script && npm run build:alias",
+    "build:script": "tsc -p tsconfig.build.json",
+    "build:alias": "tsc-alias -p tsconfig.build.json"
+  },
+  "keywords": [],
+  "author": {
+    "name": "pearwb1235",
+    "email": "pear.wb1235@gmail.com",
+    "url": "https://github.com/pearwb1235"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.51.0"
+  }
+}
