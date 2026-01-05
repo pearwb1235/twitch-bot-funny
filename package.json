@@ -20,7 +20,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -38,10 +38,9 @@
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
     "@pearwb/logger": "^0.4.0",
-    "@twurple/api": "^7.2.0",
-    "@twurple/auth": "^7.2.0",
-    "@twurple/chat": "^7.2.0",
-    "@twurple/pubsub": "^7.2.0",
-    "googleapis": "^144.0.0"
+    "@twurple/api": "^8.0.2",
+    "@twurple/auth": "^8.0.2",
+    "@twurple/chat": "^8.0.2",
+    "googleapis": "^169.0.0"
   }
 }
