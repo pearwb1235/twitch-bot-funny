@@ -69,8 +69,17 @@ export default class RandomBanModule extends ChatMoudle {
   onMessage(_1: string, _2: string, text: string, msg: ChatMessage) {
     const user = msg.userInfo;
     if (text !== null && text === this.keyword) {
-      if (user.isMod || user.isBroadcaster) {
-        this.say(this.target.name, `MOD 不能參與`, {
+      if (user.isBroadcaster) {
+        this.say(this.target.name, `主播不能參與`, {
+          replyTo: msg,
+        });
+      } else if (user.badges.has("lead_moderator")) {
+        // NOTE: 此功能 twurple 尚未支援檢測
+        this.say(this.target.name, `槌子不能參與`, {
+          replyTo: msg,
+        });
+      } else if (user.isMod) {
+        this.say(this.target.name, `MOD 不能參與 (槌子模式等待完善)`, {
           replyTo: msg,
         });
       } else {
