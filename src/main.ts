@@ -3,6 +3,7 @@ import { twurpleClient } from "~/index";
 import { logger } from "~/logger";
 import AutoBanModule from "~/modules/autoban";
 import BaseModule from "~/modules/base";
+import BoomModule from "~/modules/boom";
 import DeleteSelfModule from "~/modules/deleteSelf";
 import LuckModule from "~/modules/luck";
 import RandomBanModule from "~/modules/randomBan";
@@ -99,6 +100,7 @@ export class MainLoader {
       this.initModule(user, RandomReplyModule);
       this.initModule(user, LuckModule);
       this.initModule(user, RollModule);
+      this.initModule(user, BoomModule);
       this.initModule(user, DeleteSelfModule);
       this.initModule(user, UtilModule);
       this.initModule(user, AutoBanModule);
