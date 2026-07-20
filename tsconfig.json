@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir": ".",
     "allowJs": true,
-    "baseUrl": ".",
     "resolveJsonModule": true,
-    "downlevelIteration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
