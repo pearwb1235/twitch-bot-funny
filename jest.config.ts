@@ -6,7 +6,7 @@ import { compilerOptions } from "./tsconfig.json";
 
 const jestConfig: Config = {
   roots: ["<rootDir>"],
-  modulePaths: [compilerOptions.baseUrl],
+  modulePaths: ["<rootDir>"],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
     prefix: "<rootDir>/",
   }),
