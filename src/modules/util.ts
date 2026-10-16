@@ -33,6 +33,28 @@ export default class UtilModule extends ChatMoudle {
     return result.data.length > 0 ? result.data[0].followDate : null;
   }
 
+  async getRandomUser() {
+    const knownBots = [
+      "1019903902", // this bot
+      "100135110", // streamelements
+      "797558968", // chiwabots
+      "541450924", // creatisbot
+      "795887898", // nekolivebot
+      "19264788", // nightbot
+    ];
+    const result = await twurpleClient.asUser(
+      process.env.TWITCH_ID!,
+      async (twurpleClient) =>
+        await twurpleClient.chat.getChatters(this.target.id),
+    );
+    const chatters = result.data.filter(
+      (user) => !knownBots.includes(user.userId),
+    );
+    return chatters.length > 0
+      ? chatters[Math.floor(Math.random() * chatters.length)]
+      : null;
+  }
+
   async onMessage(_1: string, _2: string, text: string, msg: ChatMessage) {
     const currentTime = Date.now();
     if (text === "!follow") {
@@ -48,6 +70,15 @@ export default class UtilModule extends ChatMoudle {
           replyTo: msg.id,
         },
       );
+    } else if (text === "!user") {
+      const user = await this.getRandomUser();
+      if (user) {
+        return this.say(this.target.name, `抽到了 ${user.userDisplayName}`, {
+          replyTo: msg.id,
+        });
+      } else {
+        return this.say(this.target.name, "沒有找到", { replyTo: msg.id });
+      }
     }
   }
 }
