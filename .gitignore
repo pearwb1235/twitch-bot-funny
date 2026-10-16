@@ -138,3 +138,8 @@ dist
 # Twitch Access Token Example
 .data/*
 !.data/tokens.{userId}.json
+
+# Local-only files/folders
+.local/
+*.local
+*.local.*
